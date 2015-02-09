@@ -1,2 +1,2 @@
-# swk42-dashing
+# swk42-dashboard
 Dashing dashboard for softwerkskammer
