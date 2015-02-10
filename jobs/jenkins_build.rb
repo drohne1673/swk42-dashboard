@@ -65,31 +65,34 @@ def get_short_description_for_action(actions)
   }
 end
 
-job_mapping.each do |title, jenkins_project|
-  current_status = nil
-  SCHEDULER.every '10s', :first_in => 0 do |job|
-    last_status = current_status
-    build_info = get_json_for_job(jenkins_project[:job], jenkins_project[:jenkins_host])
-    current_status = build_info['result']
-    short_description = ''
-    percent=0
-    if build_info['building']
-      current_status = 'BUILDING'
-      percent = get_completion_percentage(jenkins_project[:job], jenkins_project[:jenkins_host])
-      short_description = ": " + get_short_description_for_action(build_info['actions'])
-    elsif jenkins_project[:pre_job]
-      pre_build_info = get_json_for_job(jenkins_project[:pre_job], jenkins_project[:jenkins_host])
-      current_status = 'PREBUILD' if pre_build_info['building']
-      percent = get_completion_percentage(jenkins_project[:pre_job], jenkins_project[:jenkins_host])
-    end
+def dontDoAthing
+  job_mapping.each do |title, jenkins_project|
+    current_status = nil
+    SCHEDULER.every '10s', :first_in => 0 do |job|
+      last_status = current_status
+      build_info = get_json_for_job(jenkins_project[:job], jenkins_project[:jenkins_host])
+      current_status = build_info['result']
+      short_description = ''
+      percent=0
+      if build_info['building']
+        current_status = 'BUILDING'
+        percent = get_completion_percentage(jenkins_project[:job], jenkins_project[:jenkins_host])
+        short_description = ": " + get_short_description_for_action(build_info['actions'])
+      elsif jenkins_project[:pre_job]
+        pre_build_info = get_json_for_job(jenkins_project[:pre_job], jenkins_project[:jenkins_host])
+        current_status = 'PREBUILD' if pre_build_info['building']
+        percent = get_completion_percentage(jenkins_project[:pre_job], jenkins_project[:jenkins_host])
+      end
 
-    send_event title, {
-                        :currentResult => current_status,
-                        :lastResult => last_status,
-                        :timestamp => build_info['timestamp'],
-                        :value => percent,
-                        :number => '#'+build_info['number'].to_s+short_description,
-                        :title => title
-                    }
+      send_event title, {
+                          :currentResult => current_status,
+                          :lastResult => last_status,
+                          :timestamp => build_info['timestamp'],
+                          :value => percent,
+                          :number => '#'+build_info['number'].to_s+short_description,
+                          :title => title
+                      }
+    end
   end
+
 end

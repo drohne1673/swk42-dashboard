@@ -6,13 +6,10 @@ require "json"
 job_mapping = {
     'kliAde' => {:woeid => 1099805, :city => 'Adelaide'},
     'kliBer' => {:woeid => 638242, :city => 'Berlin'},
-    'kliBu' => {:woeid => 868274, :city => 'Bucharest'},
-    'kliCebu' => {:woeid => 1199079, :city => 'Cebu'},
-    'kliChester' => {:woeid => 23417972, :city => 'Chesterbrook'},
-    'kliGlou' => {:woeid => 21248, :city => 'Gloucester'},
+    'kliZurich' => {:woeid => 784794, :city => 'Zürich'},
+    'kliVienna' => {:woeid => 12591694, :city => 'Wien'},
     'kliKA' => {:woeid => 12597063, :city => 'Karlsruhe'},
-    'kliLogrono' => {:woeid => 765455, :city => 'Logrono'}
-    #'kliLon' => {:woeid => 44418, :city => 'London'}
+    'kliLon' => {:woeid => 44418, :city => 'London'}
 }
 
 # Units for temperature:

@@ -1,8 +1,8 @@
 require 'net/http'
 require 'json'
 
-#The Internet Chuck Norris Database,  .. server = "http://api.icndb.com"
-server = "http://hohipjenkinsa01.ops.server.lan:10180"
+#The Internet Chuck Norris Database,
+server = 'http://api.icndb.com'
 
 #Id of the widget
 id = 'chuck'
@@ -15,7 +15,7 @@ proxy_pass = 'XXXXXXX'
 
 SCHEDULER.every '30s', :first_in => 0 do |job|
 
-  uri = URI("#{server}/stats-crawler/facts/random;category=favourite")
+  uri = URI("#{server}/jokes/random?firstName=Chuck&lastName=Norris&limitTo=[nerdy]")
   res = Net::HTTP.get(uri)
 
   #This is for when there is a proxy
@@ -24,8 +24,7 @@ SCHEDULER.every '30s', :first_in => 0 do |job|
   j = JSON[res]
 
   #Get the joke
-  joke = j['text']
-  cat = j['category']
+  joke = j['value']['joke']
 
   #Send the joke to the text widget
   send_event id, {
