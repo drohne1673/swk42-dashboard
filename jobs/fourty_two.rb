@@ -13,10 +13,15 @@ facts = [
     %q[When he was 42, Douglas Adams played guitar on stage with Pink Floyd at Earl's Court.]
 ]
 
+
 SCHEDULER.every '30s' do
-  fact = facts.sample
+  #fact = facts.sample
+
+  uri = URI.parse('http://numbersapi.com/42')
+  response = Net::HTTP.get_response(uri)
+
   send_event id, {
                    :title => '42 Facts',
-                   :text => fact
+                   :text => response.body
                }
 end
