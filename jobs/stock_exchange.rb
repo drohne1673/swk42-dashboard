@@ -6,7 +6,7 @@ id = 'stockexchange'
 
 company_symbol = 'UTDI.DE'
 
-SCHEDULER.every '30s' do
+SCHEDULER.every '5m' do
 
   http = Net::HTTP.new 'query.yahooapis.com'
   query = URI::encode "select * from yahoo.finance.historicaldata where symbol = '"+company_symbol+"' and startDate = '2014-09-11' and endDate = '2015-02-11'&env=store://datatables.org/alltableswithkeys&format=json"
@@ -67,18 +67,3 @@ SCHEDULER.every '30s' do
     send_event id, {:series => series}
   end
 end
-
-#"results": {
-#    "quote": [
-#    {
-#        "Symbol": "UTDI.DE",
-#    "Date": "2015-02-10",
-#    "Open": "39.21",
-#    "High": "40.50",
-#    "Low": "39.18",
-#    "Close": "40.06",
-#    "Volume": "546200",
-#    "Adj_Close": "40.06"
-#},
-#    {
-#        "Symbol": "UTDI.DE",
