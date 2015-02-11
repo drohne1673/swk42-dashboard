@@ -1,4 +1,8 @@
-title = 'stockexchange'
+require 'net/http'
+require 'json'
+
+#Id of the widget
+id = 'stockexchange'
 
 company_symbol = 'UTDI.DE'
 
@@ -15,16 +19,32 @@ SCHEDULER.every '30s' do
     data_high = Array.new
     data_low = Array.new
     data_close = Array.new
-    results.each do |item|
 
+    results.each do |item|
       date = Time.parse(item['Date']).to_i
 
-      data_open.push({:x => date, :y => item['Open']})
-      data_high.push({:x => date, :y => item['High']})
-      data_low.push({:x => date, :y => item['Low']})
-      data_close.push({:x => date, :y => item['Close']})
+      data_open << {
+          'x' => date,
+          'y' => Float(item['Open'])
+      }
 
-      #puts "added line with #{date} and open "+ item['Open']
+      data_high << {
+          'x' => date,
+          'y' => Float(item['High'])
+      }
+
+      data_low << {
+          'x' => date,
+          'y' => Float(item['Low'])
+      }
+
+      close_value = Float(item['Close'])
+      data_close << {
+          'x' => date,
+          'y' => close_value
+      }
+
+      #puts "added line with #{date} and open #{close_value}"
     end
 
 
@@ -44,9 +64,7 @@ SCHEDULER.every '30s' do
         }
     ]
 
-    send_event title, {
-                        :series => series
-                    }
+    send_event id, {:series => series}
   end
 end
 

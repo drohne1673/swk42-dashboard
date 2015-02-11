@@ -11,7 +11,7 @@ SCHEDULER.every '30s' do
     items = Array.new
     results.each do |item|
 
-      puts 'item found with '+item['title']
+      #puts 'item found with '+item['title']
       items.push({:label => item['title'], :value => item['source']['content']})
 
     end
