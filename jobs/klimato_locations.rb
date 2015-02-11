@@ -6,7 +6,7 @@ require "json"
 job_mapping = {
     'kliAde' => {:woeid => 1099805, :city => 'Adelaide'},
     'kliBer' => {:woeid => 638242, :city => 'Berlin'},
-    'kliZurich' => {:woeid => 784794, :city => 'Zürich'},
+    'kliZurich' => {:woeid => 784794, :city => 'Zuerich'},
     'kliVienna' => {:woeid => 12591694, :city => 'Wien'},
     'kliKA' => {:woeid => 12597063, :city => 'Karlsruhe'},
     'kliLon' => {:woeid => 44418, :city => 'London'}
