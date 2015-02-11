@@ -2,8 +2,8 @@ require 'net/http'
 require 'json'
 require 'time'
 
-JENKINS_PATH_HIP = "http://hohipjenkinsa01.ops.server.lan:10180/jenkins"
-JENKINS_PATH_MOC = "http://homailjenkinsa01.ops.server.lan:10100/jenkins"
+JENKINS_PATH_1 = "http://thisisajenkins.somedomain/jenkins"
+JENKINS_PATH_2 = "http://thisisanotherjenkins.somedomain/jenkins"
 
 JENKINS_AUTH = {
     'name' => nil,
@@ -12,14 +12,8 @@ JENKINS_AUTH = {
 
 # the key of this mapping must be a unique identifier for your job, the according value must be the name that is specified in jenkins
 job_mapping = {
-    'jhip-registry' => {:job => 'hip-registry', :jenkins_host => JENKINS_PATH_HIP},
-    'jhip-as' => {:job => 'hip-authorizationservice', :jenkins_host => JENKINS_PATH_HIP},
-    'jhip-sso-ott' => {:job => 'hip-sso-onetimetoken-service', :jenkins_host => JENKINS_PATH_HIP},
-    'jhip-p-resolver' => {:job => 'hip-provitem-resolver', :jenkins_host => JENKINS_PATH_HIP},
-    'jmsb' => {:job => 'mobilesite-pss', :jenkins_host => JENKINS_PATH_HIP},
-    'jwsb' => {:job => 'Webfix', :jenkins_host => JENKINS_PATH_HIP},
-    'jcme-mig-service' => {:job => 'cme-wordpress-migration-service', :jenkins_host => JENKINS_PATH_HIP},
-    'jtomdata_rel' => {:job => 'tomdata_release', :jenkins_host => JENKINS_PATH_MOC}
+    'widgetname1' => {:job => 'jobtitle1', :jenkins_host => JENKINS_PATH_1},
+    'widgetname2' => {:job => 'jobtitle2', :jenkins_host => JENKINS_PATH_2}
 }
 
 def get_number_of_failing_tests(job_name, jenkins_host)
