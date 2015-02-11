@@ -12,8 +12,8 @@ JENKINS_AUTH = {
 
 # the key of this mapping must be a unique identifier for your job, the according value must be the name that is specified in jenkins
 job_mapping = {
-    'widgetname1' => {:job => 'jobtitle1', :jenkins_host => JENKINS_PATH_1},
-    'widgetname2' => {:job => 'jobtitle2', :jenkins_host => JENKINS_PATH_2}
+    'jenkins-job01' => {:job => 'jobtitle1', :jenkins_host => JENKINS_PATH_1},
+    'jenkins-job02' => {:job => 'jobtitle2', :jenkins_host => JENKINS_PATH_2}
 }
 
 def get_number_of_failing_tests(job_name, jenkins_host)
@@ -58,6 +58,21 @@ def get_short_description_for_action(actions)
       |action| return action['causes'][0]['shortDescription'] if action.has_key?('causes')
   }
 end
+
+#dummy values for demo purposes
+job_mapping.each do |title, jenkins_project|
+  SCHEDULER.every '10s' do
+    send_event title, {
+                        :currentResult => 'SUCCESS',
+                        :lastResult => 'FAILURE',
+                        :timestamp => Time.now,
+                        :value => rand(100),
+                        :number => '#'+rand(1000).to_s,
+                        :title => title
+                    }
+  end
+end
+
 
 def dontDoAthing
   job_mapping.each do |title, jenkins_project|
