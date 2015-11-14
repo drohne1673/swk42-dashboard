@@ -6,37 +6,43 @@ require "json"
 job_mapping = {
     'kliAde' => {:woeid => 1099805, :city => 'Adelaide'},
     'kliBer' => {:woeid => 638242, :city => 'Berlin'},
-    'kliZurich' => {:woeid => 784794, :city => 'Zuerich'},
-    'kliVienna' => {:woeid => 12591694, :city => 'Wien'},
+    'kliBu' => {:woeid => 868274, :city => 'Bucharest'},
+    'kliCebu' => {:woeid => 1199079, :city => 'Cebu'},
+    'kliChester' => {:woeid => 23417972, :city => 'Chesterbrook'},
+    'kliGlou' => {:woeid => 21248, :city => 'Gloucester'},
     'kliKA' => {:woeid => 12597063, :city => 'Karlsruhe'},
+    'kliLogrono' => {:woeid => 765455, :city => 'Logrono'},
     'kliLon' => {:woeid => 44418, :city => 'London'}
 }
 
-# Units for temperature:
-# f: Fahrenheit
-# c: Celsius
-format = "c"
+current_weather = {}
 
-job_mapping.each do |title, weather_project|
-  SCHEDULER.every '15m', :first_in => 0 do |job|
-    http = Net::HTTP.new 'query.yahooapis.com'
-    query = URI::encode "select * from weather.forecast WHERE woeid=#{weather_project[:woeid]} and u='#{format}'&format=json"
-    request = http.request Net::HTTP::Get.new("/v1/public/yql?q=#{query}")
-    response = JSON.parse request.body
-    results = response['query']['results']
+def get_weather_from_location(woe_id)
+  # Units for temperature:
+  # f: Fahrenheit, c: Celsius
+  format = 'c'
 
-    if results
-      condition = results['channel']['item']['condition']
-      location = results['channel']['location']
-      send_event title, {
-                          :location => location['city'],
-                          :temperature => condition['temp'],
-                          :code => climate_constants(condition['code']),
-                          :format => format,
-                          :date => condition['date']
-                      }
-    end
+  query = URI::encode "select * from weather.forecast WHERE woeid=#{woe_id} and u='#{format}'&format=json"
+
+  http = Net::HTTP.new 'query.yahooapis.com'
+  response = http.request Net::HTTP::Get.new("/v1/public/yql?q=#{query}")
+
+  jsonBody = JSON.parse response.body
+  results = jsonBody['query']['results']
+
+  if results
+    condition = results['channel']['item']['condition']
+    location = results['channel']['location']
+
+    return {
+        :location => location['city'],
+        :temperature => condition['temp'],
+        :code => climate_constants(condition['code']),
+        :format => format,
+        :date => condition['date']
+    }
   end
+
 end
 
 def climate_constants(weather_code)
@@ -139,3 +145,31 @@ def climate_constants(weather_code)
       'lightning'
   end
 end
+
+def update_weather_data(current_weather, job_mapping)
+  job_mapping.each do |title, weather_project|
+    current_weather[title] = get_weather_from_location(weather_project[:woeid])
+  end
+end
+
+#schedule the weather update
+SCHEDULER.every '30m' do
+  #Every long term get the current weather
+  update_weather_data(current_weather, job_mapping)
+end
+#on startup get fill it right away
+update_weather_data(current_weather, job_mapping)
+
+def send_weather_and_reschedule(last_location, current_weather)
+  title = current_weather.keys[last_location]
+  send_event 'klimate', current_weather[title]
+  last_location = last_location+1
+  if (last_location > current_weather.keys.length-1)
+    last_location = 0
+  end
+  SCHEDULER.in '3s' do
+    send_weather_and_reschedule(last_location, current_weather)
+  end
+end
+
+send_weather_and_reschedule(0, current_weather)
