@@ -4,15 +4,25 @@ require 'json'
 #Id of the widget
 id = 'stockexchange'
 
-company_symbol = 'UTDI.DE'
+company_symbol = 'UTDI.DE' #united internet
 
-SCHEDULER.every '5m' do
+current_series = {'series' => []}
+
+def update_stockdata(company_symbol)
+  date = Date.today
+  formatted_time_now = date.strftime("%Y-%m-%d")
+  #6 months ago
+  start_time = date - 180 #days ago
+  formatted_time_start = start_time.strftime("%Y-%m-%d")
+
+  query = URI::encode "select * from yahoo.finance.historicaldata where symbol = '"+company_symbol+"' and startDate = '#{formatted_time_start}' and endDate = '#{formatted_time_now}'&env=store://datatables.org/alltableswithkeys&format=json"
 
   http = Net::HTTP.new 'query.yahooapis.com'
-  query = URI::encode "select * from yahoo.finance.historicaldata where symbol = '"+company_symbol+"' and startDate = '2014-09-11' and endDate = '2015-02-11'&env=store://datatables.org/alltableswithkeys&format=json"
-  request = http.request Net::HTTP::Get.new("/v1/public/yql?q=#{query}")
-  response = JSON.parse request.body
-  results = response['query']['results']['quote']
+  response = http.request Net::HTTP::Get.new("/v1/public/yql?q=#{query}")
+
+
+  jsonBody = JSON.parse response.body
+  results = jsonBody['query']['results']['quote']
 
   if results
     data_open = Array.new
@@ -47,8 +57,7 @@ SCHEDULER.every '5m' do
       #puts "added line with #{date} and open #{close_value}"
     end
 
-
-    series = [
+    return [
         {
             :name => 'Open',
             :data => data_open
@@ -63,7 +72,23 @@ SCHEDULER.every '5m' do
             :data => data_close
         }
     ]
-
-    send_event id, {:series => series}
   end
 end
+
+def update_series(current_series, company_symbol)
+  current_series['series'] =update_stockdata(company_symbol)
+end
+
+SCHEDULER.every '4h' do
+  update_series(current_series, company_symbol)
+end
+update_series(current_series, company_symbol)
+
+def send_graph_and_reschedule(id, current_series)
+  send_event id, {:series => current_series['series']}
+  SCHEDULER.in '1m' do
+    send_graph_and_reschedule(id, current_series)
+  end
+end
+
+send_graph_and_reschedule(id, current_series)

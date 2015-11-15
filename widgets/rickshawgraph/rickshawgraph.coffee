@@ -50,6 +50,13 @@ class Dashing.Rickshawgraph extends Dashing.Widget
             answer = 0
             answer += s.data[s.data.length - 1].y or 0 for s in series
 
+          when "highestLast"
+            answer = 0.0
+            if @get('unstack') or (@getRenderer() is "line")
+              answer = Math.max(answer, s.data[s.data.length - 1].y) for s in series
+            else
+              answer += s.data[s.data.length - 1].y or 0 for s in series
+
           when "highest"
             answer = 0
             if @get('unstack') or (@getRenderer() is "line")
@@ -74,7 +81,8 @@ class Dashing.Rickshawgraph extends Dashing.Widget
               # Otherwise just return nothing.
               answer = ''
 
-        answer = formatNumber answer
+        if (answer > 1000)
+          answer = formatNumber answer
 
     return answer
 
